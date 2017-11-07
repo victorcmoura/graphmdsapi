@@ -1,3 +1,4 @@
+require 'net/http'
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
 
@@ -36,6 +37,71 @@ class UsersController < ApplicationController
   # DELETE /users/1
   def destroy
     @user.destroy
+  end
+
+  #GET USERS FROM GITHUB
+  def get_from_github
+    puts 'Requesting to fga-gpp-mds repos...'
+    @saved_users = []
+    @saved_associations = []
+    Repository.all.each do |repository|
+      @url = URI.parse('https://api.github.com/repos/' + repository.name + '/contributors')
+      @request = Net::HTTP::Get.new(@url.to_s)
+      @request.add_field("Authorization", "token 7b979a0cc62b84fc201f05d0d9b52fd53e83b3af")
+
+      @result = Net::HTTP.start(@url.host, @url.port, :use_ssl => true) do |http|
+        http.request(@request)
+      end
+
+      @objects = JSON.parse @result.body
+
+      @objects.each do |object|
+        @new_user = User.new(:name => object['login'])
+
+        if @new_user.save
+          @saved_users.push(object['login'])
+        end
+
+        @new_association = Association.new(:user => User.find_by_name(object['login']), :repository => repository)
+        if @new_association.save
+          @pair = {repository.name => @new_user.name}
+          @saved_associations.push(@pair)
+        end
+      end
+    end
+      render json: {'new_users': @saved_users, 'new_associations': @saved_associations}
+  end
+
+  def get_repositories_from_users
+    puts 'Requesting to fga-gpp-mds repos...'
+    @saved_repos = []
+    @saved_associations = []
+    User.all.each do |user|
+      @url = URI.parse('https://api.github.com/users/' + user.name + '/subscriptions')
+      @request = Net::HTTP::Get.new(@url.to_s)
+      @request.add_field("Authorization", "token 7b979a0cc62b84fc201f05d0d9b52fd53e83b3af")
+
+      @result = Net::HTTP.start(@url.host, @url.port, :use_ssl => true) do |http|
+        http.request(@request)
+      end
+
+      @objects = JSON.parse @result.body
+
+      @objects.each do |object|
+        @new_repo = Repository.new(:name => object['full_name'])
+
+        if @new_repo.save
+          @saved_repos.push(object['full_name'])
+        end
+
+        @new_association = Association.new(:user => user, :repository => Repository.find_by_name(object['full_name']))
+        if @new_association.save
+          @pair = {@new_association.repository.name => user.name}
+          @saved_associations.push(@pair)
+        end
+      end
+    end
+      render json: {'new_repos': @saved_repos, 'new_associations': @saved_associations}
   end
 
   private
