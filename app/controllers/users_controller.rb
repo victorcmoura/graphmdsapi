@@ -47,7 +47,7 @@ class UsersController < ApplicationController
     Repository.all.each do |repository|
       @url = URI.parse('https://api.github.com/repos/' + repository.name + '/contributors')
       @request = Net::HTTP::Get.new(@url.to_s)
-      @request.add_field("Authorization", "token 7b979a0cc62b84fc201f05d0d9b52fd53e83b3af")
+      @request.add_field("Authorization", "token " + request.headers['Authorization'])
 
       @result = Net::HTTP.start(@url.host, @url.port, :use_ssl => true) do |http|
         http.request(@request)
@@ -79,7 +79,7 @@ class UsersController < ApplicationController
     User.all.each do |user|
       @url = URI.parse('https://api.github.com/users/' + user.name + '/subscriptions')
       @request = Net::HTTP::Get.new(@url.to_s)
-      @request.add_field("Authorization", "token 7b979a0cc62b84fc201f05d0d9b52fd53e83b3af")
+      @request.add_field("Authorization", "token " + request.headers['Authorization'])
 
       @result = Net::HTTP.start(@url.host, @url.port, :use_ssl => true) do |http|
         http.request(@request)

@@ -40,14 +40,14 @@ class RepositoriesController < ApplicationController
   end
 
   #GET REPOSITORIES FROM GITHUB
-  def get_from_github
+  def get_from_github()
     puts 'Requesting to fga-gpp-mds...'
     @saved_repos = []
     @index = 1
     loop do
       @url = URI.parse('https://api.github.com/orgs/fga-gpp-mds/repos?page=' + @index.to_s)
       @request = Net::HTTP::Get.new(@url.to_s)
-      @request.add_field("Authorization", "token 7b979a0cc62b84fc201f05d0d9b52fd53e83b3af")
+      @request.add_field("Authorization", "token " + request.headers['Authorization'])
 
 
       @result = Net::HTTP.start(@url.host, @url.port, :use_ssl => true) do |http|
