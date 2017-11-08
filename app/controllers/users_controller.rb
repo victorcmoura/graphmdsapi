@@ -63,12 +63,13 @@ class UsersController < ApplicationController
           @saved_users.push(object['login'])
         else
           @to_update_user = User.find_by_name(object['login'])
+          if @to_update_user != nil
+            if @to_update_user.avatar_url != object['avatar_url']
+              @to_update_user.avatar_url = object['avatar_url']
+              @to_update_user.save
 
-          if @to_update_user.avatar_url != object['avatar_url']
-            @to_update_user.avatar_url = object['avatar_url']
-            @to_update_user.save
-
-            @updated_users.push(object['login'])
+              @updated_users.push(object['login'])
+            end
           end
         end
 
