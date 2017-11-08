@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   def index
     @users = User.all
 
-    render json: @users.to_json(:only => [:id, :name])
+    render json: @users.to_json(:only => [:id, :name, :avatar_url])
   end
 
   # GET /users/1
@@ -43,6 +43,7 @@ class UsersController < ApplicationController
   def get_from_github
     puts 'Requesting to fga-gpp-mds repos...'
     @saved_users = []
+    @updated_users = []
     @saved_associations = []
     Repository.all.each do |repository|
       @url = URI.parse('https://api.github.com/repos/' + repository.name + '/contributors')
@@ -56,10 +57,19 @@ class UsersController < ApplicationController
       @objects = JSON.parse @result.body
 
       @objects.each do |object|
-        @new_user = User.new(:name => object['login'])
+        @new_user = User.new(:name => object['login'], :avatar_url => object['avatar_url'])
 
         if @new_user.save
           @saved_users.push(object['login'])
+        else
+          @to_update_user = User.find_by_name(object['login'])
+
+          if @to_update_user.avatar_url != object['avatar_url']
+            @to_update_user.avatar_url = object['avatar_url']
+            @to_update_user.save
+
+            @updated_users.push(object['login'])
+          end
         end
 
         @new_association = Association.new(:user => User.find_by_name(object['login']), :repository => repository)
@@ -69,7 +79,7 @@ class UsersController < ApplicationController
         end
       end
     end
-      render json: {'new_users': @saved_users, 'new_associations': @saved_associations}
+      render json: {'updated_users': @updated_users, 'new_users': @saved_users, 'new_associations': @saved_associations}
   end
 
   def get_repositories_from_users
