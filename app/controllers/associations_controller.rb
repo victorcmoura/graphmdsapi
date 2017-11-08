@@ -5,7 +5,7 @@ class AssociationsController < ApplicationController
   def index
     @associations = Association.all
 
-    render json: @associations
+    render json: @associations.to_json(:only => [:id, :user_id, :repository_id])
   end
 
   # GET /associations/1

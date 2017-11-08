@@ -6,7 +6,7 @@ class RepositoriesController < ApplicationController
   def index
     @repositories = Repository.all
 
-    render json: @repositories
+    render json: @repositories.to_json(:only => [:id, :name])
   end
 
   # GET /repositories/1
