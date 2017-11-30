@@ -1,10 +1,9 @@
 class AssociationWithUsersController < ApplicationController
   before_action :set_association_with_user, only: [:show, :update, :destroy]
 
-  def inverse_possible_edge(edge)
-    @inverse_possible_edge = AssociationWithUser.where(:user_one_id => edge.user_two_id, :user_two_id => edge.user_one_id)
-    return @inverse_possible_edge.first
-  end
+
+
+
 
   # GET /association_with_users
   def index
@@ -12,7 +11,7 @@ class AssociationWithUsersController < ApplicationController
     @not_duplicated_associations = []
 
     @association_with_users.each do |association|
-      if !@not_duplicated_associations.include?(inverse_possible_edge(association))
+      if @not_duplicated_associations.find {|possible_duplicate| possible_duplicate.user_one_id == association.user_two_id and possible_duplicate.user_two_id == association.user_one_id} == nil
         @not_duplicated_associations.push(association)
       end
     end
@@ -159,7 +158,7 @@ class AssociationWithUsersController < ApplicationController
           @total_associations.where(:user_one_id => edge.user_two_id).each do |possible_edge|
             @inserts = true
             @possible_edges_list.each do |current_layer|
-              if current_layer.include?(possible_edge) || current_layer.include?(inverse_possible_edge(possible_edge))
+              if current_layer.include?(possible_edge) || current_layer.find {|possible_inverse| possible_inverse.user_one_id == possible_edge.user_two_id and possible_inverse.user_two_id == possible_edge.user_one_id} != nil
                 @inserts = false
               end
             end
