@@ -8,7 +8,7 @@ class AssociationWithUser < ApplicationRecord
   validates :user_one, presence: true
   validates :user_two, presence: true
   validate :user_one_cant_be_user_two
-  validate :inverted_tuples_are_not_valid
+  #validate :inverted_tuples_are_not_valid
 end
 
 def user_one_cant_be_user_two
