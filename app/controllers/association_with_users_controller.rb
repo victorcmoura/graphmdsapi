@@ -210,6 +210,10 @@ class AssociationWithUsersController < ApplicationController
     while true
       @insert = @visited_paths.pop()
 
+      if(@insert == nil)
+        break
+      end
+
       if @insert.user_two_id == @solution.last.user_one_id
         @solution.push(@insert)
         if @insert.user_one_id == @start
