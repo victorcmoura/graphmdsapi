@@ -1,10 +1,6 @@
 class AssociationWithUsersController < ApplicationController
   before_action :set_association_with_user, only: [:show, :update, :destroy]
 
-
-
-
-
   # GET /association_with_users
   def index
     @association_with_users = AssociationWithUser.all
@@ -59,36 +55,12 @@ class AssociationWithUsersController < ApplicationController
           @new_association_with_user.user_one_id = analysed.user.id
           @new_association_with_user.user_two_id = possible_match.user.id
           @new_association_with_user.save
+
+          @new_association_with_user = AssociationWithUser.new
+          @new_association_with_user.user_two_id = analysed.user.id
+          @new_association_with_user.user_one_id = possible_match.user.id
+          @new_association_with_user.save
         end
-      end
-    end
-  end
-
-  def get_next(current_node, list_of_lists, visited_ids, previous_nodes, end_node)
-
-    if current_node == end_node
-      return previous_nodes + [current_node]
-    end
-
-    visited_ids.push(current_node)
-
-    @possible_next_nodes = list_of_lists.find {|element| element[0] == current_node}
-    @possible_next_nodes = @possible_next_nodes[1] - visited_ids
-
-    if @possible_next_nodes.count == 0
-      return previous_nodes
-    else
-      @solutions = []
-      @possible_next_nodes.each do |node|
-        @solutions.push(get_next(node, list_of_lists, visited_ids, previous_nodes, end_node))
-      end
-
-      @solution = @solutions.find {|list| list.last == end_node}
-
-      if @solution == nil
-        return previous_nodes
-      else
-        return previous_nodes + [current_node] + @solution
       end
     end
   end
@@ -184,6 +156,77 @@ class AssociationWithUsersController < ApplicationController
     @shortest_path = make_list_of_nodes(@solution.reverse)
 
     render json: @shortest_path
+  end
+
+  def dijkstra
+    AssociationWithUser.update_all(cost: 1)
+    @paths = AssociationWithUser.all
+    @visited_ids = []
+    @visited_paths = []
+    @possible_paths = []
+
+    @start = association_with_user_params["user_one_id"].to_i
+    @end = association_with_user_params["user_two_id"].to_i
+
+    @current_node_id = @start
+
+    while @current_node_id != @end
+
+      @possible_paths = @possible_paths + @paths.where(:user_one_id => @current_node_id) - @visited_paths - @paths.where(:user_two_id => @visited_ids)
+      @possible_paths = @possible_paths.sort_by {|path| path[:cost]}
+
+      @selected_path = nil
+
+      if @possible_paths.count != 0
+        @selected_path = @possible_paths.first
+      end
+
+      if @selected_path != nil
+
+        @visited_paths.push(@selected_path)
+        @visited_ids.push(@selected_path.user_two_id)
+
+        @paths.where(:user_one_id => @selected_path.user_two_id).update_all(cost: @selected_path.cost + 1)
+        @paths = AssociationWithUser.all
+
+        @current_node_id = @selected_path.user_two_id
+      end
+    end
+
+    @solution = []
+
+    @current_node_id = @selected_path.user_two_id
+
+    puts "=" *80
+    @visited_paths.each do |s|
+      puts ".."
+      puts s.user_one_id
+      puts s.user_two_id
+    end
+    puts "=" *80
+
+    @solution.push(@visited_paths.pop())
+
+    while true
+      @insert = @visited_paths.pop()
+
+      if(@insert == nil)
+        break
+      end
+
+      if @insert.user_two_id == @solution.last.user_one_id
+        @solution.push(@insert)
+        if @insert.user_one_id == @start
+          break
+        end
+      end
+    end
+
+      @solution = make_list_of_nodes(@solution.reverse)
+
+      render json: @solution
+
+
   end
 
   private
