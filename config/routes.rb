@@ -12,5 +12,6 @@ Rails.application.routes.draw do
   post '/shortest_path', to: 'association_with_users#shortest_path_between_two_users'
   post '/dijkstra', to: 'association_with_users#dijkstra'
   get '/users_except_carla_and_victor', to: 'users#index_except_victorcmoura_and_RochaCarla'
+  get '/associations_with_users_except_carla_and_victor', to: 'association_with_users#associations_except_victorcmoura_and_RochaCarla'
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
