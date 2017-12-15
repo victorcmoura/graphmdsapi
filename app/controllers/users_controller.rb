@@ -9,6 +9,12 @@ class UsersController < ApplicationController
     render json: @users.to_json(:only => [:id, :name, :avatar_url])
   end
 
+  def index_except_victorcmoura_and_RochaCarla
+    @users = User.all - [User.find_by_name("victorcmoura"), User.find_by_name("RochaCarla")]
+
+    render json: @users.to_json(:only => [:id, :name, :avatar_url])
+  end
+
   # GET /users/1
   def show
     render json: @user
