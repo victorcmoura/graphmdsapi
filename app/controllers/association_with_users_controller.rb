@@ -15,6 +15,21 @@ class AssociationWithUsersController < ApplicationController
     render json: @not_duplicated_associations
   end
 
+  def associations_except_victorcmoura_and_RochaCarla
+    @victorcmoura_associations = AssociationWithUser.where(:user_one => User.find_by_name("victorcmoura")) + AssociationWithUser.where(:user_two => User.find_by_name("victorcmoura"))
+    @rochacarla_associations = AssociationWithUser.where(:user_one => User.find_by_name("RochaCarla")) + AssociationWithUser.where(:user_two => User.find_by_name("RochaCarla"))
+    @association_with_users = AssociationWithUser.all - (@victorcmoura_associations + @rochacarla_associations)
+    @not_duplicated_associations = []
+
+    @association_with_users.each do |association|
+      if @not_duplicated_associations.find {|possible_duplicate| possible_duplicate.user_one_id == association.user_two_id and possible_duplicate.user_two_id == association.user_one_id} == nil
+        @not_duplicated_associations.push(association)
+      end
+    end
+
+    render json: @not_duplicated_associations
+  end
+
   # GET /association_with_users/1
   def show
     render json: @association_with_user
