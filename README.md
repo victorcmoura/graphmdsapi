@@ -4,7 +4,7 @@ This application was created to allow the use of Dijkstra's shortest path algori
 
 MDS (Software Development Methods) and GPP (Portfolio and Software Project Management) are UnB's Software Engineering subjects that, together, are responsible for providing real software project experience to the students.
 
-This API fetches, via GitHub API, all the members that belong to [the subjects' official GitHub organization](https://github.com/fga-gpp-mds) and processes this information as a graph where the nodes are the contributors and the edges represent a partnership in any repository inside the organization.
+This API fetches, via GitHub API, all the members that belong to [the subjects' official GitHub organization](https://github.com/fga-eps-mds) and processes this information as a graph where the nodes are the contributors and the edges represent a partnership in any repository inside the organization.
 
 To run the API:
 
