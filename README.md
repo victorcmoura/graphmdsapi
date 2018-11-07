@@ -1,8 +1,8 @@
 # GraphMDS-API
 
-This application was created to allow the use of Dijkstra's shortest path algorithm using real data from the context where I, a University of Brasília student, am inserted.
+This application was created to allow the use of Dijkstra's shortest path algorithm using real data from the context where I, an University of Brasília student, am inserted.
 
-MDS (Software Development Methods) and GPP (Portfolio and Software Project Management) are UnB's Software Engineering subjects that, together, are responsible for providing real software project experience to the students.
+MDS (Software Development Methods) and GPP (Portfolio and Software Project Management, now named as EPS, or Engenharia de Produto de Software) are UnB's Software Engineering subjects that, together, are responsible for providing real software project experience to the students.
 
 This API fetches, via GitHub API, all the members that belong to [the subjects' official GitHub organization](https://github.com/fga-eps-mds) and processes this information as a graph where the nodes are the contributors and the edges represent a partnership in any repository inside the organization.
 
